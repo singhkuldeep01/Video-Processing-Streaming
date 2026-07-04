@@ -1,0 +1,14 @@
+# IDE & Editor
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# OS
+.DS_Store
+Thumbs.db
+.env.local.*.key
+
+# Project specific
+.turbo/
+turbo.json.local

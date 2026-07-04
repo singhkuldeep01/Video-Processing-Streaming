@@ -1,0 +1,101 @@
+generator client {
+  provider = "prisma-client"
+  output   = "generated/prisma"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+enum VideoStatus {
+  PENDING
+  UPLOADED
+  PROCESSING
+  READY
+  FAILED
+}
+
+enum VideoResolution {
+  P360
+  P480
+  P720
+  P1080
+}
+
+model User {
+  id        String   @id @default(cuid())
+
+  username  String   @unique
+  email     String   @unique
+  password  String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  videos     Video[]
+  likedVideos VideoLike[]
+}
+
+model Video {
+  id          String   @id @default(cuid())
+
+  title       String
+  description String?
+
+  ownerId     String
+  owner        User @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+
+  status      VideoStatus @default(PENDING)
+
+  originalObjectKey String
+  thumbnailKey      String?
+
+  duration    Int?
+  fileSize    BigInt?
+  mimeType    String?
+
+  viewsCount  Int @default(0)
+  likesCount  Int @default(0)
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt()
+
+  formats     VideoFormat[]
+  likedBy     VideoLike[]
+
+  @@index([ownerId])
+  @@index([status])
+}
+
+model VideoFormat {
+  id         String @id @default(cuid())
+
+  videoId    String
+  video      Video @relation(fields: [videoId], references: [id], onDelete: Cascade)
+
+  resolution VideoResolution
+
+  objectKey  String
+
+  createdAt  DateTime @default(now())
+
+  @@unique([videoId, resolution])
+  @@index([videoId])
+}
+
+model VideoLike {
+  id        String   @id @default(cuid())
+
+  userId    String
+  videoId   String
+
+  user      User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  video     Video @relation(fields: [videoId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@unique([userId, videoId])
+  @@index([userId])
+  @@index([videoId])
+}
