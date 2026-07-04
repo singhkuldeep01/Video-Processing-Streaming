@@ -19,7 +19,7 @@ CREATE TABLE `Video` (
     `description` VARCHAR(191) NULL,
     `ownerId` VARCHAR(191) NOT NULL,
     `status` ENUM('PENDING', 'UPLOADED', 'PROCESSING', 'READY', 'FAILED') NOT NULL DEFAULT 'PENDING',
-    `originalObjectKey` VARCHAR(191) NOT NULL,
+    `originalObjectKey` VARCHAR(191) NULL,
     `thumbnailKey` VARCHAR(191) NULL,
     `duration` INTEGER NULL,
     `fileSize` BIGINT NULL,
@@ -39,7 +39,7 @@ CREATE TABLE `VideoFormat` (
     `id` VARCHAR(191) NOT NULL,
     `videoId` VARCHAR(191) NOT NULL,
     `resolution` ENUM('P360', 'P480', 'P720', 'P1080') NOT NULL,
-    `objectKey` VARCHAR(191) NOT NULL,
+    `objectKey` VARCHAR(191) NULL,
     `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
 
     INDEX `VideoFormat_videoId_idx`(`videoId`),

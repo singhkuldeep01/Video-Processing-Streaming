@@ -1,18 +1,17 @@
 
-import { useState } from 'react'
-import { Button } from './components/ui/button'
+import './App.css'
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
+import { UploadVideoPage } from './pages/UploadVideoPage'
+import HomePage from './pages/Home'
 
 function App() {
-
-
-  const [count, setCount] = useState(0);
-
   return (
-    <>
-      <h1 className="text-5xl font-bold">Hello baby</h1>
-      <h1>Count is: {count}</h1>
-      <Button onClick={() => setCount(count + 1)}>click me</Button>
-    </>
+    <Router>
+      <Routes>
+        <Route path="/" element={<HomePage />} />
+        <Route path="/upload" element={<UploadVideoPage />} />
+      </Routes>
+    </Router>
   )
 }
 

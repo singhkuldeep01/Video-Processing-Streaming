@@ -1,9 +1,12 @@
+import { uploadIntentVideoController } from "@/controllers/video.controller";
 import express from "express";
 const router = express.Router();
 
 // Define your API routes here
-router.get("/upload-intent", (req, res) => {
-  res.json({ message: "This is upload intent route" });
+router.get("/" , (req, res) => {
+  res.json({ message: "Welcome to the Video Processing API" });
 });
+
+router.post("/upload-intent",uploadIntentVideoController);
 
 export default router;

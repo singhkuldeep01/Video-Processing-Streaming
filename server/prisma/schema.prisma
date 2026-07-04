@@ -48,7 +48,7 @@ model Video {
 
   status      VideoStatus @default(PENDING)
 
-  originalObjectKey String
+  originalObjectKey String?
   thumbnailKey      String?
 
   duration    Int?
@@ -76,7 +76,7 @@ model VideoFormat {
 
   resolution VideoResolution
 
-  objectKey  String
+  objectKey  String?
 
   createdAt  DateTime @default(now())
 
