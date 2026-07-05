@@ -5,6 +5,7 @@ export interface UploadIntentRequestType {
   originalFileName: string;
   mimeType: string;
   fileSize: number;
+  userId: string;
 }
 
 export interface UploadIntentResponseType {

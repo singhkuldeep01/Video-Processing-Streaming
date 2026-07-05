@@ -1,4 +1,4 @@
-import { signupService, signinService, refreshService , logoutService } from "@/services/auth.service";
+import { signupService, signinService, refreshService , logoutService, logoutAllService } from "@/services/auth.service";
 import { Request, Response, NextFunction } from "express";
 
 export async function signup(req: Request, res: Response, next: NextFunction) {
@@ -66,8 +66,20 @@ export async function refresh(req: Request, res: Response, next: NextFunction) {
                 message: "Missing required field: refreshToken"
             });
         }
-        const result = await refreshService({ refreshToken });
-        res.status(200).json(result);
+        const deviceInfo = req.headers['user-agent'];
+        const ipAddress = req.ip;
+        const result = await refreshService({ refreshToken, deviceInfo, ipAddress });
+        res.cookie("refresh_token", result.newRefreshToken, {
+            httpOnly: true,
+            secure: true,
+            sameSite: "strict",
+            maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+        });
+        res.status(200).json({
+            message: "Refresh token generated successfully",
+            user: result.user,
+            accessToken: result.accessToken,
+        });
     } catch (error) {
         next(error);
     }
@@ -93,6 +105,33 @@ export async function logout(
 
     res.status(200).json({
       message: "Logged out successfully",
+    });
+  } catch (error) {
+    next(error);
+  }
+}
+
+export async function logoutAll(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
+  try {
+    const refreshToken = req.cookies.refresh_token;
+
+    if (refreshToken) {
+      await logoutAllService(refreshToken);
+    }
+
+    res.clearCookie("refresh_token", {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+    });
+
+    res.status(200).json({
+      success: true,
+      message: "Logged out from all devices successfully",
     });
   } catch (error) {
     next(error);

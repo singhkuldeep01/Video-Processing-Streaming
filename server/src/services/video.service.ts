@@ -10,13 +10,14 @@ export async function uploadVideoIntentService({
   originalFileName,
   mimeType,
   fileSize,
+  userId,
 }: UploadIntentRequestType) {
-  const ownerId = "user123"; // Replace with actual user ID
+  const ownerId = userId;
   const extension = originalFileName.split(".").pop();
   const video = await createVideo({
     title,
     description,
-    ownerId: "user123", // Replace with actual user ID
+    ownerId,
     mimeType,
     fileSize: BigInt(fileSize),
   });

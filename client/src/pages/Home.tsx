@@ -1,9 +1,53 @@
+import { useState, useRef, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
-import { Play, Upload, Search, Zap } from "lucide-react"
-import { Link } from "react-router-dom"
+import { Play, Upload, Search, Zap, MoreVertical, LogOut, ShieldAlert } from "lucide-react"
+import { Link, useNavigate } from "react-router-dom"
+import { useAuthStore } from "@/store/auth.store"
+import { logout, logoutAll } from "@/api/auth.api"
+import { authChannel } from "@/utils/auth-channel";
 
 export const HomePage = () => {
+  const navigate = useNavigate()
+  const { isAuthenticated, user, clearAuth } = useAuthStore()
+  const [dropdownOpen, setDropdownOpen] = useState(false)
+  const dropdownRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setDropdownOpen(false)
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside)
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside)
+    }
+  }, [])
+
+  const handleLogout = async () => {
+    try {
+      await logout()
+    } catch (e) {
+      // Ignore API failure, ensure client state is cleared
+    } finally {
+      clearAuth()
+      authChannel.postMessage({ type: "LOGOUT" });
+      navigate("/auth")
+    }
+  }
+
+  const handleLogoutAll = async () => {
+    try {
+      await logoutAll()
+    } catch (e) {
+      // Ignore API failure, ensure client state is cleared
+    } finally {
+      clearAuth()
+      navigate("/auth")
+    }
+  }
+
   const features = [
     {
       icon: Upload,
@@ -79,16 +123,56 @@ export const HomePage = () => {
               </a>
             </nav>
 
-            <div className="flex gap-3">
+            <div className="flex items-center gap-3">
               <Link to="/upload">
                 <Button variant="outline" size="sm">
                   <Upload className="mr-2 h-4 w-4" />
                   Upload
                 </Button>
               </Link>
-              <Link to="/auth">
-                <Button size="sm">Sign In</Button>
-              </Link>
+              {isAuthenticated ? (
+                <div className="relative flex items-center gap-3" ref={dropdownRef}>
+                  <span className="text-sm font-medium text-muted-foreground">
+                    Hi, {user?.username}
+                  </span>
+                  <Button
+                    onClick={() => setDropdownOpen(!dropdownOpen)}
+                    variant="ghost"
+                    size="sm"
+                    className="h-8 w-8 p-0 rounded-full hover:bg-muted"
+                  >
+                    <MoreVertical className="h-4 w-4" />
+                  </Button>
+                  {dropdownOpen && (
+                    <div className="absolute right-0 top-full mt-2 w-56 rounded-md border border-border bg-popover p-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none z-50 animate-in fade-in slide-in-from-top-1 duration-150">
+                      <button
+                        onClick={() => {
+                          setDropdownOpen(false)
+                          handleLogout()
+                        }}
+                        className="flex w-full items-center gap-2 rounded-sm px-3 py-2 text-left text-sm text-foreground hover:bg-accent hover:text-accent-foreground transition-colors"
+                      >
+                        <LogOut className="h-4 w-4 text-muted-foreground" />
+                        <span>Sign Out</span>
+                      </button>
+                      <button
+                        onClick={() => {
+                          setDropdownOpen(false)
+                          handleLogoutAll()
+                        }}
+                        className="flex w-full items-center gap-2 rounded-sm px-3 py-2 text-left text-sm text-destructive hover:bg-destructive/10 hover:text-destructive transition-colors"
+                      >
+                        <ShieldAlert className="h-4 w-4" />
+                        <span>Log out of all devices</span>
+                      </button>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <Link to="/auth">
+                  <Button size="sm">Sign In</Button>
+                </Link>
+              )}
             </div>
           </div>
         </div>

@@ -1,4 +1,5 @@
 import { uploadIntentVideoController } from "@/controllers/video.controller";
+import { authenticate } from "@/middleware/auth.middleware";
 import express from "express";
 const router = express.Router();
 
@@ -7,6 +8,8 @@ router.get("/" , (req, res) => {
   res.json({ message: "Welcome to the Video Processing API" });
 });
 
-router.post("/upload-intent",uploadIntentVideoController);
+router.use(authenticate);
+
+router.post("/upload-intent", uploadIntentVideoController);
 
 export default router;

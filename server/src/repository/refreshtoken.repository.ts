@@ -12,12 +12,14 @@ export async function getRefreshToken(id: string) {
 }
 
 
-export async function deleteRefreshToken(id: string) {
-    return await prisma.refreshToken.deleteMany({ where: { id } });
+export async function deleteRefreshToken(id: string, tx?: any) {
+    const client = tx || prisma;
+    return await client.refreshToken.delete({ where: { id } });
 }
 
-export async function createRefreshToken(payload: CreateRefreshTokenPayloadType) {
-    return await prisma.refreshToken.create({
+export async function createRefreshToken(payload: CreateRefreshTokenPayloadType, tx?: any) {
+    const client = tx || prisma;
+    return await client.refreshToken.create({
         data: payload,
     });
 }

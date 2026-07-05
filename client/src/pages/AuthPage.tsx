@@ -1,18 +1,25 @@
 import { useState } from "react"
-import { useNavigate } from "react-router-dom"
+import { useNavigate, useLocation } from "react-router-dom"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card } from "@/components/ui/card"
 import { Play } from "lucide-react"
 import { Link } from "react-router-dom"
-import { login, signup } from "@/api/user"
+import { signin, signup } from "@/api/auth.api"
+import { useAuthStore } from "@/store/auth.store"
 import type { LoginFormData, SignupFormData } from "@/types/auth"
+import { authChannel } from "@/utils/auth-channel"
 
 export const AuthPage = () => {
   const navigate = useNavigate()
+  const location = useLocation()
+  const loginStore = useAuthStore((state) => state.login)
   const [isLogin, setIsLogin] = useState(true)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [success, setSuccess] = useState<string | null>(null)
+
+  const from = (location.state as any)?.from?.pathname || "/"
 
   // Login Form State
   const [loginForm, setLoginForm] = useState<LoginFormData>({
@@ -49,18 +56,16 @@ export const AuthPage = () => {
   const handleLoginSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError(null)
+    setSuccess(null)
     setIsLoading(true)
     try {
-      const response = await login(loginForm)
-      console.log("Login successful:", response)
-      
-      // Store token if provided
-      if (response.token) {
-        localStorage.setItem("authToken", response.token)
+      const response = await signin(loginForm)
+      if (response.accessToken && response.user) {
+        loginStore(response.accessToken, response.user)
+        authChannel.postMessage({ type: "LOGIN" });
       }
-      
-      // Redirect to home or dashboard
-      navigate("/")
+      setSuccess("Logged in successfully!")
+      navigate(from, { replace: true })
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : "Login failed"
       setError(errorMessage)
@@ -73,6 +78,7 @@ export const AuthPage = () => {
   const handleSignupSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError(null)
+    setSuccess(null)
 
     if (signupForm.password !== signupForm.confirmPassword) {
       setError("Passwords do not match")
@@ -81,20 +87,19 @@ export const AuthPage = () => {
 
     setIsLoading(true)
     try {
-      const response = await signup({
+      await signup({
         username: signupForm.username,
         email: signupForm.email,
         password: signupForm.password,
       })
-      console.log("Signup successful:", response)
-      
-      // Store token if provided
-      if (response.token) {
-        localStorage.setItem("authToken", response.token)
-      }
-      
-      // Redirect to home or dashboard
-      navigate("/")
+      setSuccess("Account created successfully! Please sign in.")
+      setIsLogin(true)
+      setSignupForm({
+        username: "",
+        email: "",
+        password: "",
+        confirmPassword: "",
+      })
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : "Signup failed"
       setError(errorMessage)
@@ -156,6 +161,12 @@ export const AuthPage = () => {
             {error && (
               <div className="mb-4 rounded-lg bg-destructive/10 border border-destructive/20 p-3">
                 <p className="text-sm text-destructive">{error}</p>
+              </div>
+            )}
+
+            {success && (
+              <div className="mb-4 rounded-lg bg-emerald-500/10 border border-emerald-500/20 p-3">
+                <p className="text-sm text-emerald-500">{success}</p>
               </div>
             )}
 
