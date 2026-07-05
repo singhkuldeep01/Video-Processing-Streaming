@@ -1,4 +1,4 @@
-import { uploadVideoIntentService } from "@/services/videoService";
+import { uploadVideoIntentService } from "@/services/video.service";
 import { Request, Response } from "express";
 
 export async function uploadIntentVideoController(req: Request, res: Response) {

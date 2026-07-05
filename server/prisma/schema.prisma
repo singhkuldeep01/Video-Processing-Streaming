@@ -1,5 +1,5 @@
 generator client {
-  provider = "prisma-client"
+  provider = "prisma-client-js"
   output   = "generated/prisma"
 }
 
@@ -35,6 +35,7 @@ model User {
 
   videos     Video[]
   likedVideos VideoLike[]
+  refreshTokens RefreshToken[]
 }
 
 model Video {
@@ -98,4 +99,19 @@ model VideoLike {
   @@unique([userId, videoId])
   @@index([userId])
   @@index([videoId])
+}
+
+model RefreshToken {
+  id          String   @id @default(cuid())
+  
+  userId      String
+  deviceInfo  String?
+  ipAddress   String? 
+  expiresAt   DateTime  
+
+  user        User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt   DateTime @default(now())
+
+  @@index([userId])
 }

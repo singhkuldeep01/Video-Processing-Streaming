@@ -86,7 +86,9 @@ export const HomePage = () => {
                   Upload
                 </Button>
               </Link>
-              <Button size="sm">Sign In</Button>
+              <Link to="/auth">
+                <Button size="sm">Sign In</Button>
+              </Link>
             </div>
           </div>
         </div>

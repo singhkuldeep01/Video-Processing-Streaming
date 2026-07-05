@@ -18,6 +18,6 @@ export async function generateUploadUrl({
   });
 
   return getSignedUrl(s3Client, command, {
-    expiresIn: 60 * 30, // 30 minutes
+    expiresIn: process.env.AWS_S3_EXPIRY_TIME ? parseInt(process.env.AWS_S3_EXPIRY_TIME) : 1800, // Default to 30 minutes if not set
   });
 }

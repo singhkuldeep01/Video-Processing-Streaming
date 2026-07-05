@@ -1,8 +1,7 @@
 import express, { Request, Response, NextFunction } from "express"
 import cors from "cors"
+import cookieParser from "cookie-parser"
 import dotenv from "dotenv"
-import path from "path"
-import multer from "multer"
 import apiRoutes from "./api/index"
 
 dotenv.config()
@@ -20,8 +19,8 @@ app.use(
 )
 
 app.use(express.json())
+app.use(cookieParser())
 
-// Serve uploaded files as static
 
 
 app.get("/", (req: Request, res: Response) => {
