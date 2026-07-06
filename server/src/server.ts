@@ -3,6 +3,7 @@ import cors from "cors"
 import cookieParser from "cookie-parser"
 import dotenv from "dotenv"
 import apiRoutes from "./api/index"
+import { errorHandler } from "./middleware/errorHandler"
 
 dotenv.config()
 
@@ -27,9 +28,11 @@ app.get("/", (req: Request, res: Response) => {
   res.send("Hello, World!")
 })
 
+
+
 app.use("/api", apiRoutes)
 
-
+app.use(errorHandler);
 const PORT = process.env.PORT || 3000
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`)

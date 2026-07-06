@@ -1,7 +1,7 @@
 import { prisma } from "@/lib/prisma";
-import { CreateUser } from "@/types/user.type";
+import { CreateUserType } from "@/types/user.type";
 
-export async function createUser ({username , email , hashedPassword} : CreateUser){
+export async function createUser ({username , email , hashedPassword} : CreateUserType){
     return prisma.user.create({
         data:{
             username,

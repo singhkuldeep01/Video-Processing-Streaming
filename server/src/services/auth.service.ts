@@ -7,19 +7,18 @@ import { createRefreshToken, getRefreshToken, deleteRefreshToken, deleteAllRefre
 import { prisma } from "@/lib/prisma";
 import type { CreateRefreshTokenPayloadType } from "@/types/auth.type";
 import { Prisma } from "@prisma/client";
-
+import {  ConflictError } from "@/utils/error/app.error";
 export async function signupService({ username, email, password }: SignupRequestType) {
-    try {
         // Check if username exists
         const isUserNameExist = await searchUserByUserName(username);
         if (isUserNameExist) {
-            throw new Error("Username already exists");
+            throw new ConflictError("Username already exists");
         }
 
         // Check if email exists
         const isEmailExist = await searchUserByEmail(email);
         if (isEmailExist) {
-            throw new Error("Email already exists");
+            throw new ConflictError("Email already exists");
         }
 
         // Hash password
@@ -33,16 +32,13 @@ export async function signupService({ username, email, password }: SignupRequest
         });
 
         return { success: true, message: "User created successfully" };
-    } catch (error: any) {
-        throw new Error(error.message || "Error while signing up");
-    }
 }
 
 export async function signinService({ email, password, deviceInfo, ipAddress }: SigninRequestType) {
     try {
         const user = await searchUserByEmail(email);
         if (!user) {
-            return { success: false, message: "Invalid credentials" };
+            return { success: false, message: "User Doesn't Exists" };
         }
 
         const isPasswordValid = await verifyPassword(password, user.password);
